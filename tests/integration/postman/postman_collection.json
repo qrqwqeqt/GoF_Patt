@@ -1,0 +1,1454 @@
+{
+	"info": {
+		"_postman_id": "5288fd6d-e1b1-47d6-a694-379c505fa91c",
+		"name": "EcoRent",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "40554048"
+	},
+	"item": [
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "createUser",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const name = pm.variables.replaceIn('{{$randomFirstName}}');\r",
+									"const surname = pm.variables.replaceIn('{{$randomLastName}}');\r",
+									"const email = pm.variables.replaceIn('{{$randomEmail}}');\r",
+									"const passwordLength = 12;\r",
+									"const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()';\r",
+									"let password = '';\r",
+									"for (let i = 0; i < passwordLength; i++) {\r",
+									"    password += characters.charAt(Math.floor(Math.random() * characters.length));\r",
+									"}\r",
+									"\r",
+									"pm.collectionVariables.set('name', name);\r",
+									"pm.collectionVariables.set('surname', surname);\r",
+									"pm.collectionVariables.set('email', email);\r",
+									"pm.collectionVariables.set('password', password);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response time is less than 500ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body has message for successful registration\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"message\", \"Користувача зареєстровано успішно.\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"{{name}}\",\r\n  \"surname\": \"{{surname}}\",\r\n  \"email\": \"{{email}}\",\r\n  \"password\": \"{{password}}\"\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{domain}}/api/auth/register",
+							"protocol": "http",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "authentificateUser",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response time is less than 500ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains a token and success message on successful login\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"token\");\r",
+									"    pm.response.to.have.jsonBody(\"message\", \"Успішний вхід.\");\r",
+									"});\r",
+									"\r",
+									"const response = pm.response.json();\r",
+									"pm.collectionVariables.set('token', response.token);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"{{email}}\",\r\n    \"password\": \"{{password}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{domain}}/api/auth/login",
+							"protocol": "http",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getUser",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response time is less than 500ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body has required properties\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property(\"_id\");\r",
+									"    pm.expect(pm.response.json()).to.have.property(\"name\");\r",
+									"    pm.expect(pm.response.json()).to.have.property(\"surname\");\r",
+									"    pm.expect(pm.response.json()).to.have.property(\"email\");\r",
+									"    pm.expect(pm.response.json()).to.have.property(\"password\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{domain}}/api/auth/getUser",
+							"protocol": "http",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"getUser"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateUser",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response time is less than 500ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains message and updatedUser\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property('message');\r",
+									"    pm.expect(pm.response.json()).to.have.property('updatedUser');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"phoneNumber\": \"{{$randomPhoneNumber}}\",\r\n  \"town\": \"{{$randomCity}}\",\r\n  \"region\": \"{{$randomStreetName}}\",\r\n  \"street\": \"{{$randomStreetAddress}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{domain}}/api/auth/updateUser",
+							"protocol": "http",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"updateUser"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updatePassword",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"const passwordLength = 12;\r",
+									"const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()';\r",
+									"let newPassword = '';\r",
+									"for (let i = 0; i < passwordLength; i++) {\r",
+									"    newPassword += characters.charAt(Math.floor(Math.random() * characters.length));\r",
+									"}\r",
+									"\r",
+									"pm.variables.set('newPassword', newPassword);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response time is less than 500ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body contains success message\", function () {\r",
+									"    pm.expect(pm.response.json().message).to.equal(\"Успішна зміна паролю.\");\r",
+									"});\r",
+									"\r",
+									"const newPassword = pm.variables.get('newPassword');\r",
+									"\r",
+									"pm.collectionVariables.set('password', newPassword);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"oldPassword\": \"{{password}}\",\r\n  \"newPassword\": \"{{newPassword}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{domain}}/api/auth/updatePassword",
+							"protocol": "http",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"updatePassword"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteUser",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response time is less than 500ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body should not be empty\", function () {\r",
+									"    pm.expect(pm.response.text()).not.to.be.empty;\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://{{domain}}/api/auth/deleteUser",
+							"protocol": "http",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"auth",
+								"deleteUser"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Device",
+			"item": [
+				{
+					"name": "addDevice",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response message is 'пристрій додано.'\", function () {\r",
+									"    pm.response.to.have.jsonBody('message', 'Пристрій додано.');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body has 'device' property\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property('device');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response time is less than 2000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(2000);\r",
+									"});\r",
+									"\r",
+									"const deviceId = pm.response.json().device._id;\r",
+									"pm.collectionVariables.set('deviceId', deviceId);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "Здаю в оренду EcoFlow Delta Max",
+									"type": "text"
+								},
+								{
+									"key": "manufacturer",
+									"value": "EcoFlow",
+									"type": "text"
+								},
+								{
+									"key": "deviceModel",
+									"value": "Delta Max",
+									"type": "text"
+								},
+								{
+									"key": "condition",
+									"value": "Вживаний",
+									"type": "text"
+								},
+								{
+									"key": "batteryCapacity",
+									"value": "2048",
+									"type": "text"
+								},
+								{
+									"key": "weight",
+									"value": "10",
+									"type": "text"
+								},
+								{
+									"key": "typeC",
+									"value": "2",
+									"type": "text"
+								},
+								{
+									"key": "typeA",
+									"value": "4",
+									"type": "text"
+								},
+								{
+									"key": "sockets",
+									"value": "6",
+									"type": "text"
+								},
+								{
+									"key": "remoteUse",
+									"value": "Wi-Fi",
+									"type": "text"
+								},
+								{
+									"key": "dimensions",
+									"value": "{ \"length\": \"100\", \"width\": \"100\", \"height\": \"100\"}",
+									"type": "text"
+								},
+								{
+									"key": "batteryType",
+									"value": "LiFePO4",
+									"type": "text"
+								},
+								{
+									"key": "signalShape",
+									"value": "Чиста синусоїда",
+									"type": "text"
+								},
+								{
+									"key": "images",
+									"type": "file",
+									"src": "device.jpg"
+								},
+								{
+									"key": "price",
+									"value": "500",
+									"type": "text"
+								},
+								{
+									"key": "minRentTerm",
+									"value": "10",
+									"type": "text"
+								},
+								{
+									"key": "maxRentTerm",
+									"value": "20",
+									"type": "text"
+								},
+								{
+									"key": "policyAgreement",
+									"value": "true",
+									"type": "text"
+								},
+								{
+									"key": "imageDimensions",
+									"value": "[{\"width\": 800, \"height\": 600}]",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://{{domain}}/api/devices/addDevice",
+							"protocol": "http",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"devices",
+								"addDevice"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getDevice",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response time is less than 500ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body should have dimensions property\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property('dimensions');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body should have title property\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property('title');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body should have manufacturer property\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property('manufacturer');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body should have deviceModel property\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property('deviceModel');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body should have batteryCapacity property\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property('batteryCapacity');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body should have weight property\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property('weight');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body should have typeC property\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property('typeC');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body should have typeA property\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property('typeA');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body should have sockets property\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property('sockets');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body should have remoteUse property\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property('remoteUse');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body should have batteryType property\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property('batteryType');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body should have signalShape property\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property('signalShape');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body should have images property\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property('images');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body should have price property\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property('price');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body should have minRentTerm property\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property('minRentTerm');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body should have maxRentTerm property\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property('maxRentTerm');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body should have policyAgreement property\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property('policyAgreement');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body should have isInRent property\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property('isInRent');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body should have ownerId property\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property('ownerId');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{domain}}/api/devices/getDevice/:id",
+							"protocol": "http",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"devices",
+								"getDevice",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{deviceId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getOwnerDevices",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response time is less than 500ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body is an array\", function () {\r",
+									"    pm.expect(pm.response.json()).to.be.an('array');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Each device has an _id property\", function () {\r",
+									"    pm.expect(pm.response.json()[0]._id).to.be.a('string');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Each device has a title property\", function () {\r",
+									"    pm.expect(pm.response.json()[0].title).to.be.a('string');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Each device has a manufacturer property\", function () {\r",
+									"    pm.expect(pm.response.json()[0].manufacturer).to.be.a('string');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Each device has a deviceModel property\", function () {\r",
+									"    pm.expect(pm.response.json()[0].deviceModel).to.be.a('string');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Each device has a price property\", function () {\r",
+									"    pm.expect(pm.response.json()[0].price).to.be.a('number');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Each device has a images property\", function () {\r",
+									"    pm.expect(pm.response.json()[0].images).to.be.an('array');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{domain}}/api/devices/getOwnerDevices",
+							"protocol": "http",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"devices",
+								"getOwnerDevices"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getAllDevices",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response time is less than 500ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body has 'title' property\", function () {\r",
+									"    pm.expect(pm.response.json()[0]).to.have.property('title');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body has 'description' property\", function () {\r",
+									"    pm.expect(pm.response.json()[0]).to.have.property('description');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body has 'manufacturer' property\", function () {\r",
+									"    pm.expect(pm.response.json()[0]).to.have.property('manufacturer');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{domain}}/api/devices/getAllDevices",
+							"protocol": "http",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"devices",
+								"getAllDevices"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateDevice",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response time is less than 500ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body has message property\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property('message');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body has updatedDevice property\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property('updatedDevice');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"manufacturer\": \"Bluetti\",\r\n  \"deviceModel\": \"AC180\",\r\n  \"condition\": \"Новий\",\r\n  \"remoteUse\": \"Немає\",\r\n  \"price\": 200,\r\n  \"minRentTerm\": 1,\r\n  \"maxRentTerm\": 100\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{domain}}/api/devices/updateDevice/:id",
+							"protocol": "http",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"devices",
+								"updateDevice",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{deviceId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteDevice",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response time is less than 1000ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(1000);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body contains success message\", function () {\r",
+									"    pm.expect(pm.response.json().message).to.equal(\"Пристрій успішно видалено.\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://{{domain}}/api/devices/deleteDevice/:id",
+							"protocol": "http",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"devices",
+								"deleteDevice",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{deviceId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Ticket",
+			"item": [
+				{
+					"name": "createTicket",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response time is less than 500ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body has message property\", function () {\r",
+									"    pm.response.to.have.jsonBody('message');\r",
+									"});\r",
+									"\r",
+									"const ticketId = pm.response.json().ticket._id;\r",
+									"pm.collectionVariables.set('ticketId', ticketId);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"userEmail\": \"{{$randomEmail}}\",\r\n  \"message\": \"{{$randomLoremParagraph}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{domain}}/api/tickets/createTicket",
+							"protocol": "http",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"tickets",
+								"createTicket"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getTicket",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response time is less than 500ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body has _id, userEmail and message properties\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property('_id');\r",
+									"    pm.expect(pm.response.json()).to.have.property('userEmail');\r",
+									"    pm.expect(pm.response.json()).to.have.property('message');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{domain}}/api/tickets/getTicket/:id",
+							"protocol": "http",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"tickets",
+								"getTicket",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{ticketId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getAllTickets",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response time is less than 500ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body has required properties\", function () {\r",
+									"    pm.expect(pm.response.json()).to.be.an('array');\r",
+									"    pm.expect(pm.response.json()[0]).to.have.property('_id');\r",
+									"    pm.expect(pm.response.json()[0]).to.have.property('userEmail');\r",
+									"    pm.expect(pm.response.json()[0]).to.have.property('message');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{domain}}/api/tickets/getAllTickets",
+							"protocol": "http",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"tickets",
+								"getAllTickets"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteTicket",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response time is less than 500ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body contains success message\", function () {\r",
+									"    pm.expect(pm.response.json().message).to.equal(\"Тікет успішно видалено.\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://{{domain}}/api/tickets/deleteTicket/:id",
+							"protocol": "http",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"tickets",
+								"deleteTicket",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{ticketId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "PaymentCard",
+			"item": [
+				{
+					"name": "addPaymentCard",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"function generateCardNumber() {\r",
+									"    let cardNumber = '';\r",
+									"    for (let i = 0; i < 16; i++) {\r",
+									"        cardNumber += Math.floor(Math.random() * 10);\r",
+									"        if ((i + 1) % 4 === 0 && i !== 15) {\r",
+									"            cardNumber += ' ';\r",
+									"        }\r",
+									"    }\r",
+									"    return cardNumber;\r",
+									"}\r",
+									"\r",
+									"function generateExpiryDate() {\r",
+									"    const month = Math.floor(Math.random() * 12) + 1;\r",
+									"    const year = Math.floor(Math.random() * 5) + 25;\r",
+									"    return [month, year];\r",
+									"}\r",
+									"\r",
+									"const cardNumber = generateCardNumber();\r",
+									"const expiryDate = generateExpiryDate();\r",
+									"\r",
+									"pm.variables.set('cardNumber', cardNumber);\r",
+									"pm.variables.set('expiryDate', JSON.stringify(expiryDate));\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 201\", function () {\r",
+									"    pm.response.to.have.status(201);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response time is less than 500ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body has message and paymentCard\", function () {\r",
+									"    pm.response.to.have.jsonBody(\"message\");\r",
+									"    pm.response.to.have.jsonBody(\"paymentCard\");\r",
+									"});\r",
+									"\r",
+									"const cardId = pm.response.json().paymentCard._id;\r",
+									"pm.collectionVariables.set('cardId', cardId);\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"cardNumber\": \"{{cardNumber}}\",\r\n  \"expiryDate\": {{expiryDate}},\r\n  \"ownerName\": \"{{name}} {{surname}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://{{domain}}/api/paymentCards/addPaymentCard",
+							"protocol": "http",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"paymentCards",
+								"addPaymentCard"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getPaymentCardsByOwnerId",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response time is less than 500ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body is an array\", function () {\r",
+									"    pm.expect(pm.response.json()).to.be.an('array');\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response body has required properties\", function () {\r",
+									"    pm.expect(pm.response.json()[0]).to.have.property(\"_id\");\r",
+									"    pm.expect(pm.response.json()[0]).to.have.property(\"cardNumber\");\r",
+									"    pm.expect(pm.response.json()[0]).to.have.property(\"expiryDate\");\r",
+									"    pm.expect(pm.response.json()[0]).to.have.property(\"ownerName\");\r",
+									"    pm.expect(pm.response.json()[0]).to.have.property(\"ownerId\");\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://{{domain}}/api/paymentCards/getPaymentCardsByOwnerId",
+							"protocol": "http",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"paymentCards",
+								"getPaymentCardsByOwnerId"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deletePaymentCard",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.response.to.have.status(200);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response time is less than 500ms\", function () {\r",
+									"    pm.expect(pm.response.responseTime).to.be.below(500);\r",
+									"});\r",
+									"\r",
+									"pm.test(\"Response contains message property\", function () {\r",
+									"    pm.expect(pm.response.json()).to.have.property('message');\r",
+									"});\r",
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://{{domain}}/api/paymentCards/deletePaymentCard/:id",
+							"protocol": "http",
+							"host": [
+								"{{domain}}"
+							],
+							"path": [
+								"api",
+								"paymentCards",
+								"deletePaymentCard",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "{{cardId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "email",
+			"value": ""
+		},
+		{
+			"key": "password",
+			"value": ""
+		},
+		{
+			"key": "token",
+			"value": ""
+		},
+		{
+			"key": "deviceId",
+			"value": ""
+		},
+		{
+			"key": "name",
+			"value": ""
+		},
+		{
+			"key": "surname",
+			"value": ""
+		},
+		{
+			"key": "cardId",
+			"value": ""
+		},
+		{
+			"key": "ticketId",
+			"value": ""
+		}
+	]
+}
